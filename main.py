@@ -1,7 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status, Response
 from enum import Enum
 from typing import Optional
+from src.router import blogs, blogs_post
+
+
 app = FastAPI()
+app.include_router(blogs.router)
+app.include_router(blogs_post.router)
 
 
 @app.get('/')
@@ -33,10 +38,3 @@ class Car_type(str, Enum):
 @app.get("/car/{car_t}")
 def car_type(car_t: Car_type):
     return {"Car_type": f" The car_type you have selected is {car_t}"}
-
-
-# creating a get method with parameter method
-
-@app.get("/blog/all")
-def parameter_testing(para1: int = 1, para2: Optional[int] = None):
-    return {"message": f"the parameter are {para1} {para2}"}
