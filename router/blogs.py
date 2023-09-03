@@ -1,29 +1,55 @@
-from fastapi import APIRouter, status, Response
+from fastapi import APIRouter, Response, status
+from enum import Enum
+from typing import Optional
 
 router = APIRouter(
-    prefix="/blog",
-    tags=["blog"],
+    prefix='/blog',
+    tags=['blog']
 )
 
-# creating a get method with parameter method
+# @app.get('/all')
+# def get_all_blogs():
+#   return {'message': 'All blogs provided'}
 
 
-@router.get("/all")
-def parameter_testing(para1: int = 1, para2: int = 8):
-    return {"message": f"the parameter are {para1} {para2}"}
+@router.get(
+    '/all',
+    summary='Retrieve all blogs',
+    description='This api call simulates fetching all blogs',
+    response_description="The list of available blogs"
+)
+def get_blogs(page=1, page_size: Optional[int] = None):
+    return {'message': f'All {page_size} blogs on page {page}'}
 
 
-# creating a get methodd and changing the status code
-@router.get("/{ids}",
-            status_code=status.HTTP_200_OK,
-            #  tags=["status_code", "get_methods"],
-            summary="status code testing over condition",
-            description="Over here we aare changing the status code according to the condition")
-def status_code_ops(ids: int, response: Response):
-    if (ids > 10):
-        response.status_code = status.HTTP_200_OK
-        return {"message": f"the ids are {ids}"}
+@router.get('/{id}/comments/{comment_id}', tags=['comment'])
+def get_comment(id: int, comment_id: int, valid: bool = True, username: Optional[str] = None):
+    """
+      Simulates retrieving a comment of a blog
+      - **id** mandatory path parameter
+      - **comment_id** mandatory path parameter
+      - **bool** optional query parameter
+      - **username** optional query parameter
+      """
+    return {'message': f'blog_id {id}, comment_id {comment_id}, valid {valid}, username {username}'}
 
-    else:
+
+class BlogType(str, Enum):
+    short = 'short'
+    story = 'story'
+    howto = 'howto'
+
+
+@router.get('/type/{type}')
+def get_blog_type(type: BlogType):
+    return {'message': f'Blog type {type}'}
+
+
+@router.get('/{id}', status_code=status.HTTP_200_OK)
+def get_blog(id: int, response: Response):
+    if id > 5:
         response.status_code = status.HTTP_404_NOT_FOUND
-        return {"message": f"the ids are not {ids}"}
+        return {'error': f'Blog {id} not found'}
+    else:
+        response.status_code = status.HTTP_200_OK
+        return {'message': f'Blog with id {id}'}

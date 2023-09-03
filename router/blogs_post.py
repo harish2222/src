@@ -1,55 +1,53 @@
-from fastapi import APIRouter, status, Response, Query, Body, Path
-from typing import List, Optional, Dict
+from typing import Optional, List, Dict
+from fastapi import APIRouter, Query, Body, Path
 from pydantic import BaseModel
-router = APIRouter(prefix="/blog", tags=["blog"])
 
+router = APIRouter(
+    prefix='/blog',
+    tags=['blog']
+)
 
 class Image(BaseModel):
     url: str
     alias: str
 
-
-class Blog_Model(BaseModel):
+class BlogModel(BaseModel):
     title: str
-    body: str
+    content: str
+    nb_comments: int
     published: Optional[bool]
-    meta_data: Dict[str, str] = {'key': 'val1'}
+    tags: List[str] = []
+    metadata: Dict[str, str] = {'key1': 'val1'}
     image: Optional[Image] = None
 
-
-@router.post("/new", status_code=status.HTTP_201_CREATED)
-def post_blog(blog: Blog_Model, response: Response):
-    response.status_code = status.HTTP_202_ACCEPTED
-    return {"message": "Blog is posted successfully", "data": blog}
-
-
-@router.post("/new/{id}")
-def create_blog(blog: Blog_Model, id: int, version: int = 1):
-    return {
-        "id": id,
-        "version": version,
-        "blog": blog
+@router.post('/new/{id}')
+def create_blog(blog: BaseModel, id: int, version: int = 1):
+  return {
+    'id': id,
+    'data': blog,
+    'version': version
     }
 
-
-@router.post("/new/{id}/comments")
-def create_comment(blog: Blog_Model,
-                   id: int,
-                   comment: int = Query(None,
-                                        title="Id of the comment",
-                                        description="Some description of the comment",
-                                        alias="commentID",
-                                        deprecated=True),
-                   content: str = Body(...),
-                   v: Optional[List[str]] = Query(
-                       ['1.0', '2.0', '3.0', '4.0', '5.0']),
-                   ):
+@router.post('/new/{id}/comment/{comment_id}')
+def create_comment(blog: BlogModel, id: int, 
+        comment_title: int = Query(None,
+            title='Title of the comment',
+            description='Some description for comment_title',
+            alias='commentTitle',
+            deprecated=True
+        ),
+        content: str = Body(...,
+            min_length=10,
+            max_length=50,
+            regex='^[a-z\s]*$'
+        ),
+        v: Optional[List[str]] = Query(['1.0', '1.1', '1.2'])
+        
+    ):
     return {
-        "blog": blog,
-        "id": id,
-        "comment": comment,
-        "content": content,
-        "v": v,
-        "comment_id": comment_id,
-
+        'blog': blog,
+        'id': id,
+        'comment_title': comment_title,
+        'content': content,
+        'version': v
     }
