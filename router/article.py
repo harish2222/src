@@ -20,7 +20,7 @@ def create_article(request: ArticleBase, db: Session = Depends(get_db)):
 # Get specific article
 
 
-@router.get('/{id}', response_model=ArticleDisplay)
+@router.get('/{id}')
 def get_article(id: int, db: Session = Depends(get_db)):
     return {
         'data': db_article.get_article(db, id)
