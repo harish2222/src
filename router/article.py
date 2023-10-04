@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from db.database import get_db
 from db import db_article
+from authentication.oauthenticate2 import oauth_schema
 
 router = APIRouter(
     prefix='/article',
@@ -21,7 +22,7 @@ def create_article(request: ArticleBase, db: Session = Depends(get_db)):
 
 
 @router.get('/{id}')
-def get_article(id: int, db: Session = Depends(get_db)):
+def get_article(id: int, db: Session = Depends(get_db), token: str = Depends(oauth_schema)):
     return {
         'data': db_article.get_article(db, id)
     }

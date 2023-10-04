@@ -6,10 +6,12 @@ from db import models
 from db.database import engine
 from fastapi.responses import JSONResponse, PlainTextResponse
 from exceptions import StoryException
+from authentication import authenticationy
 
 
 app = FastAPI()
 app.include_router(blogs.router)
+app.include_router(authenticationy.router)
 app.include_router(blogs_post.router)
 app.include_router(users.router)
 app.include_router(article.router)
@@ -61,3 +63,4 @@ def story_exception_handler(request: Request, exp: StoryException):
 
 
 models.Base.metadata.create_all(engine)
+from fastapi.

@@ -17,7 +17,7 @@ def get_all_product():
 
 @router.get('/{id}')
 def get_product_id(id: int):
-    products = product[id]
+
     out = f"""
         <head>
         <style>
@@ -30,6 +30,9 @@ def get_product_id(id: int):
         }}
         </style>
         </head>
-        <div class = "product">{products} </div>
+        <div class = "product">{product[id]} </div>
     """
-    return Response(content=out, media_type='text/html')
+    if id < len(product):
+        return Response(content=out, media_type='text/html')
+    else:
+        return {"It doesn't Exist"}
