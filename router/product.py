@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Response
+import time 
 
 router = APIRouter(
     prefix='/product',
@@ -7,9 +8,15 @@ router = APIRouter(
 
 product = ['watch', 'phone', 'laptop']
 
+async def time_consuming_functionality():
+    time.sleep(50)
+    return {"message": "OK"}
+
 
 @router.get('/all')
-def get_all_product():
+async def get_all_product():
+
+    
     # return product
     data = " ".join(product)
     return Response(content=data, media_type='text/plain')

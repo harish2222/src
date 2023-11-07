@@ -1,12 +1,15 @@
 from fastapi import FastAPI, status, Response, Request, HTTPException
 from enum import Enum
 from typing import Optional
-from src.router import blogs, blogs_post, users, article, product
+from src.router import blogs, blogs_post, users, article, product, file
+from templates import templates
 from db import models
 from db.database import engine
 from fastapi.responses import JSONResponse, PlainTextResponse
 from exceptions import StoryException
 from authentication import authenticationy
+from fastapi.staticfiles import StaticFiles
+import time
 
 
 app = FastAPI()
@@ -16,6 +19,8 @@ app.include_router(blogs_post.router)
 app.include_router(users.router)
 app.include_router(article.router)
 app.include_router(product.router)
+app.include_router(file.router)
+app.include_router(templates.router)
 
 
 @app.get('/')
@@ -63,4 +68,16 @@ def story_exception_handler(request: Request, exp: StoryException):
 
 
 models.Base.metadata.create_all(engine)
-from fastapi.
+
+@app.middleware('http')
+async def add_middleware(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    duration  = time.time() - start_time
+    response.headers['duration'] = str(duration)
+    return response    
+
+
+app.mount('/files', StaticFiles(directory='files'), name='Files')
+app.mount('/templates/static/css',
+          StaticFiles(directory='templates/static/css'), name='css')
